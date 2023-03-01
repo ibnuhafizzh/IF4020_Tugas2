@@ -12,8 +12,15 @@ def substitution(input_block):
     for i in range(4):
         row = input_block[i] >> 4
         col = input_block[i] & 0x0F
-        output_block[i] = S_BOX[row][col]
+        print(row, col)
+        output_block[i] = S_BOX[row%4][col%4]
     return output_block
+
+# contoh penggunaan fungsi substitusi
+# input_block = np.array([0x22, 0x34, 0x56, 0x78])
+# output_block = substitution(input_block)
+# print("Input block: ", input_block)
+# print("Output block:", output_block)
 
 # Fungsi permutasi menggunakan tabel permutasi
 def permutation(input_block):
@@ -42,7 +49,7 @@ def generate_round_key(master_key, round_number):
     round_key = np.frombuffer(round_key, dtype=np.uint8)
     return round_key
 
-# Fungsi enkripsi dan dekripsi menggunakan jaringan Feistel
+# Fungsi jaringan Feistel
 def feistel_cipher(input_block, master_key, num_rounds):
     left_block = input_block[:8]
     right_block = input_block[8:]
@@ -54,7 +61,7 @@ def feistel_cipher(input_block, master_key, num_rounds):
     output_block = np.concatenate((right_block, left_block))
     return output_block
 
-# Fungsi utama untuk enkripsi dan dekripsi pesan
+# Fungsi enkripsi dan dekripsi pesan
 def encrypt(input_message, master_key):
     BLOCK_SIZE = 16
     NUM_ROUNDS = 16
@@ -66,8 +73,29 @@ def encrypt(input_message, master_key):
         output_message += bytes(output_block)
     return output_message
 
+def decrypt(input_message, master_key):
+    BLOCK_SIZE = 16
+    NUM_ROUNDS = 16
+    num_blocks = len(input_message) // BLOCK_SIZE
+    output_message = bytearray()
+    for i in range(num_blocks):
+        input_block = np.frombuffer(input_message[i*BLOCK_SIZE:(i+1)*BLOCK_SIZE], dtype=np.uint8)
+        left_block = input_block[:8]
+        right_block = input_block[8:]
+        round_keys = [generate_round_key(master_key, i) for i in range(NUM_ROUNDS)]
+        for i in range(NUM_ROUNDS-1, -1, -1):
+            new_right_block = left_block
+            left_block = np.bitwise_xor(right_block, round_function(left_block, round_keys[i]))
+            right_block = new_right_block
+        output_block = np.concatenate((left_block, right_block))
+        output_message += bytes(output_block)
+    return output_message
+
 # Tes program
-message = b'This is a secret message!'
+message = b'anjing pppppp'
+print('\nmessage: ' + message.decode('utf-8'))
 key = int.from_bytes(b'This is a key.', byteorder='big')
 encrypted_message = encrypt(message, key)
-print('Encrypted message: ' + encrypted_message)
+print('\nencrypted message: ' + (encrypted_message).decode('utf-8'))
+decrypted_message = decrypt(encrypted_message, key)
+print('\ndecrypted message: ' + decrypted_message.decode('utf-8'))
