@@ -11,8 +11,8 @@ def substitution(input_block):
     output_block = np.zeros_like(input_block)
     for i in range(4):
         row = input_block[i] >> 4
-        col = input_block[i] & 0x0F 
-        output_block[i] = S_BOX[row % 4][col % 4]
+        col = input_block[i] & 0x0F
+        output_block[i] = S_BOX[row][col]
     return output_block
 
 # Fungsi permutasi menggunakan tabel permutasi
@@ -25,7 +25,7 @@ def permutation(input_block):
     ])
     output_block = np.zeros_like(input_block)
     for i in range(16):
-        output_block[i] = input_block[PERMUTATION_TABLE[i % 8]]
+        output_block[i] = input_block[PERMUTATION_TABLE[i]]
     return output_block
 
 # Fungsi putaran menggunakan jaringan substitusi-permutasi
