@@ -87,12 +87,15 @@ def encrypt(input_message, master_key):
     master_key = [int(x) for x in master_key]
     num_blocks = len(input_message) // BLOCK_SIZE
     # print(len(input_message))
-    output_message = bytearray()
+    output_message = []
     for i in range(num_blocks):
         input_block = np.array(input_message[i*BLOCK_SIZE:(i+1)*BLOCK_SIZE], dtype=np.uint8)
         output_block = feistel_cipher(input_block, master_key, NUM_ROUNDS)
-        output_message += bytes(output_block)
-    return output_message
+        # print(i, " :" , output_block)
+        output_message = np.concatenate((output_message, output_block))
+    # print("enkripsi biner", output_message)
+    output_message = output_message.astype(int)
+    return output_message.tolist()
 
 def decrypt(input_message, master_key):
     BLOCK_SIZE = 16
@@ -100,8 +103,8 @@ def decrypt(input_message, master_key):
     input_message = [int(x) for x in input_message]
     master_key = [int(x) for x in master_key]
     num_blocks = len(input_message) // BLOCK_SIZE
-    output_message = bytearray()
-    print("ini oy", input_message)
+    output_message = []
+    # print("ini oy", input_message)
     for i in range(num_blocks):
         input_block = np.array(input_message[i*BLOCK_SIZE:(i+1)*BLOCK_SIZE], dtype=np.uint8)
         left_block = input_block[:8]
@@ -112,24 +115,47 @@ def decrypt(input_message, master_key):
             left_block = xor_operation(right_block, round_function([int(i) for i in list(''.join(map(str, left_block)).zfill(len(round_keys[i])))], round_keys[i]))
             right_block = new_right_block
         output_block = np.concatenate((left_block, right_block))
-        print("ini output block", output_block)
-        output_message += bytes(output_block)
-    return output_message
+        # print("outblock nya", output_block)
+        # print("ini output block", output_block)
+        output_message = np.concatenate((output_message, output_block))
+        output_message = output_message.astype(int)
+    return output_message.tolist()
+
+def binary_string_to_char(binary_str):
+    # Split the binary string into 8-bit chunks
+    chunks = [binary_str[i:i+8] for i in range(0, len(binary_str), 8)]
+
+    # Convert each 8-bit chunk to a character
+    chars = [chr(int(chunk, 2)) for chunk in chunks]
+
+    # Join the characters into a string
+    result = ''.join(chars)
+
+    return result
 
 # Tes program
-message = 'anjing ppppppppp'
+message = 'assalamualaikumm'
 print('\nmessage original: ' + message)
 message = ''.join(format(ord(i), '08b') for i in message)
 print('\nmessage binary: ' + message)
 key = 'This is a key.iy'
-print("key", key)
+print("key :", key)
 key = ''.join(format(ord(i), '08b') for i in key)
-print("binary key", key)
+# print("binary key", key))
 encrypted_message = encrypt(message, key)
+# print("panjang enkripted", len(encrypted_message), encrypted_message)
 
-print("after", key)
-print('\nencrypted message: ' + (encrypted_message).decode('utf-8'))
+str_encrypted_message = ''.join(map(str, encrypted_message))
+
+print("encrypted message in binary : ", str_encrypted_message)
+print("encrypted char: ", binary_string_to_char(str_encrypted_message))
+print()
+print("=======")
+print()
 decrypted_message = decrypt(encrypted_message, key)
 
-# print("decrypted", decrypted_message)
+str_decrypted_message = ''.join(map(str, decrypted_message))
+
+print("decrypted message in binary", str_decrypted_message)
+print("decrypted char", binary_string_to_char(str_decrypted_message))
 # print('\ndecrypted message: ' + decrypted_message.decode('utf-8'))
