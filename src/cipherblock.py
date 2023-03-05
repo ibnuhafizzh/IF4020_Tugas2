@@ -186,12 +186,13 @@ def binary_string_to_char(binary_str):
 
 
 # Tes program
-message = 'Informatikmantab'
+message = 'cobalah ungkapkan hatimu wkwkwwk'
 print('\nmessage original: ' + message)
 message = ''.join(format(ord(i), '08b') for i in message)
-print('\nmessage binary: ' + message)
-key = 'This is a key.iy'
+# print('\nmessage binary: ' + message)
+key = 'This is a key.ay'
 print("key :", key)
+print()
 key = ''.join(format(ord(i), '08b') for i in key)
 # print("binary key", key))
 encrypted_message = encrypt(message, key)
@@ -199,7 +200,7 @@ encrypted_message = encrypt(message, key)
 
 str_encrypted_message = ''.join(map(str, encrypted_message))
 
-print("encrypted message in binary : ", str_encrypted_message)
+# print("encrypted message in binary : ", str_encrypted_message)
 print("encrypted char: ", binary_string_to_char(str_encrypted_message))
 print()
 print("=======")
@@ -208,6 +209,6 @@ decrypted_message = decrypt(encrypted_message, key)
 
 str_decrypted_message = ''.join(map(str, decrypted_message))
 
-print("decrypted message in binary", str_decrypted_message)
-print("decrypted char", binary_string_to_char(str_decrypted_message))
+# print("decrypted message in binary", str_decrypted_message)
+print("decrypted char: ", binary_string_to_char(str_decrypted_message))
 # print('\ndecrypted message: ' + decrypted_message.decode('utf-8'))
